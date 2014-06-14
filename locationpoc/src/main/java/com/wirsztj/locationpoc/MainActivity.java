@@ -1,5 +1,7 @@
 package com.wirsztj.locationpoc;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -14,6 +16,8 @@ import com.wirsztj.locationpoc.Utils.LocationUtils;
 import com.wirsztj.locationpoc.geofencing.FMGeofence;
 import com.wirsztj.locationpoc.geofencing.GeofenceRequester;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -95,26 +99,51 @@ public class MainActivity extends ActionBarActivity {
         locationRegister.setLocationList(list);
     }
 
-    /**
-     * @param geofenceId
-     *            The Geofence's request ID
-     * @param latitude
-     *            Latitude of the Geofence's center.
-     * @param longitude
-     *            Longitude of the Geofence's center.
-     * @param radius
-     *            Radius of the geofence circle.
-     * @param expiration
-     *            Geofence expiration duration
-     * @param transition
-     *            Type of Geofence transition.
-     */
-
     private void addLocation() {
         GeofenceRequester gr = new GeofenceRequester(this);
 
-        FMGeofence fm = new FMGeofence("toto42", 48.8909279, 2.3529471, 1000, -1, Geofence.GEOFENCE_TRANSITION_DWELL, 20000);
+        initFakeLocation(gr);
 
-        gr.addGeofence(fm.toGeofence());
+        //FMGeofence fm = new FMGeofence("toto42", 48.8909279, 2.3529471, 1000, -1, Geofence.GEOFENCE_TRANSITION_DWELL, 5000); // PurchEase
+
+        //LocationSaver.getInstance().addGeofence(fm);
+
+        //gr.addGeofence(fm.toGeofence());
     }
+
+    private void initFakeLocation(GeofenceRequester gr) {
+        Integer id = 0;
+        List<String> strings = new LinkedList<String>();
+
+        strings.add("26 rue ordener 75018 Paris");
+        strings.add("26 rue ordener 75018 Paris");
+        strings.add("37 bis boulevard de la Chapelle 75018 Paris");
+
+        List<Address> addresses = null;
+        List<Geofence> tmp = new ArrayList<Geofence>();
+        Geocoder geocoder = new Geocoder(this);
+
+        for (String s : strings) {
+            try {
+                addresses = geocoder.getFromLocationName(s, 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (addresses.size() > 0) {
+                Address a = addresses.get(0);
+                FMGeofence fm = new FMGeofence(id.toString(), a.getLatitude(), a.getLongitude(), 100, -1, Geofence.GEOFENCE_TRANSITION_ENTER, 0);
+
+                LocationSaver.getInstance().addGeofence(fm);
+
+                PLog.e("test", fm.toGeofence() + "");
+
+                tmp.add(fm.toGeofence());
+
+                id++;
+            }
+        }
+
+        gr.addGeofences(tmp);
+    }
+
 }
