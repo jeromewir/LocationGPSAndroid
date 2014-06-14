@@ -1,16 +1,27 @@
 package com.wirsztj.locationpoc;
 
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.location.Geofence;
+import com.wirsztj.locationpoc.Utils.LocationRegister;
 import com.wirsztj.locationpoc.Utils.LocationUtils;
+import com.wirsztj.locationpoc.geofencing.FMGeofence;
+import com.wirsztj.locationpoc.geofencing.GeofenceRequester;
+
+import java.util.LinkedList;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
 
     LocationUtils locationUtils;
+    LocationRegister locationRegister;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,15 +60,61 @@ public class MainActivity extends ActionBarActivity {
     }*/
 
     private void init() {
-
+        addLocation();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (locationUtils == null)
+    }
+
+    private void initLocationUtils() {
+        if (locationUtils == null) {
             locationUtils = new LocationUtils(getSystemService(LOCATION_SERVICE), this);
+        }
 
         locationUtils.launchUpdateLocation();
+    }
+
+    private void initLocationRegister() {
+        if (locationRegister == null) {
+            locationRegister = new LocationRegister(getSystemService(LOCATION_SERVICE), this);
+        }
+
+        Log.e("test", "I'm instantiating LocationRegister");
+
+        List<Location> list = new LinkedList<Location>();
+
+        Location l = new Location(LocationManager.NETWORK_PROVIDER);
+
+        l.setLongitude(2.3529471);
+        l.setLatitude(48.8909279);
+
+        list.add(l);
+
+        locationRegister.setLocationList(list);
+    }
+
+    /**
+     * @param geofenceId
+     *            The Geofence's request ID
+     * @param latitude
+     *            Latitude of the Geofence's center.
+     * @param longitude
+     *            Longitude of the Geofence's center.
+     * @param radius
+     *            Radius of the geofence circle.
+     * @param expiration
+     *            Geofence expiration duration
+     * @param transition
+     *            Type of Geofence transition.
+     */
+
+    private void addLocation() {
+        GeofenceRequester gr = new GeofenceRequester(this);
+
+        FMGeofence fm = new FMGeofence("toto42", 48.8909279, 2.3529471, 1000, -1, Geofence.GEOFENCE_TRANSITION_DWELL, 20000);
+
+        gr.addGeofence(fm.toGeofence());
     }
 }

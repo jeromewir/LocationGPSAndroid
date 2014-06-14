@@ -18,6 +18,9 @@ import java.util.TimerTask;
 /**
  * Created by jerome on 13/06/14.
  */
+/*
+ *  Need to be implemented as a service
+ */
 public class LocationUtils implements LocationListener {
 
     LocationManager locationManager;
@@ -38,8 +41,8 @@ public class LocationUtils implements LocationListener {
 
     private LocationUtils() {}
 
-    /*
-    Send getSystemService(Context.LOCATION_SERVICE) to the constructor
+    /**
+     * Send getSystemService(Context.LOCATION_SERVICE) to the constructor as first argument
      */
     public LocationUtils(Object locationManager, Context context) {
         this.locationManager = (LocationManager)locationManager;
